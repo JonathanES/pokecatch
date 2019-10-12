@@ -1,6 +1,10 @@
 const defaultState = {
+    width: 50,
+    height: 15,
+    numPokemon: 10,
+    targetsPositions: [],
     grid: [],
-    playerPosition: { row: 7, col: 20 }
+    playerPosition: { row: 7, col: 20 },
 };
 
 const userAction = (state = defaultState, action) => {
@@ -15,6 +19,12 @@ const userAction = (state = defaultState, action) => {
                 ...state,
                 playerPosition: action.playerPosition
             }
+        case "NEW_TARGETS_POSITIONS":{
+            return {
+                ...state,
+                targetsPositions: action.targetsPositions
+            }
+        }
         default:
             return state;
     }

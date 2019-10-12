@@ -1,7 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import dresser from '../images/pokemon-red-sprite.svg';
-import pokeball from '../images/pokeball.svg';
 
 
 const mapStateToProps = state => ({
@@ -10,39 +9,51 @@ const mapStateToProps = state => ({
     playerAction: state.userAction.playerAction,
     wallAction: state.userAction.wallAction,
     grid: state.grid.grid,
-    playerPosition: state.grid.playerPosition
+    playerPosition: state.grid.playerPosition,
+    targetsPositions: state.grid.targetsPositions
 });
 
 class Cell extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            img: ''
+            img: '',
+            imageType: ''
         }
         this.handleMouseOver = this.handleMouseOver.bind(this);
         this.handleClick = this.handleClick.bind(this);
     }
 
-    componentDidMount() {
+    displayTarget() {
         const pos = this.props.position;
-        if (pos.row === this.props.playerPosition.row && pos.col === this.props.playerPosition.col) {
-            this.setState({ img: dresser });
-        }
-        else {
-            this.setState({ img: '' });
-        }
-        console.log(this.props.position)
-    }
-
-    componentDidUpdate(prevProps) {
-        if (JSON.stringify(prevProps.playerPosition) != JSON.stringify(this.props.playerPosition)) {
-            const pos = this.props.position;
-            if (pos.row === this.props.playerPosition.row && pos.col === this.props.playerPosition.col) {
-                this.setState({ img: dresser });
+        let targetsPositions = this.props.targetsPositions;
+        for (let target of targetsPositions) {
+            if (target.pos.row === pos.row && pos.col === target.pos.col) {
+                console.log(`${target.img} ${JSON.stringify(target.pos)}`);
+                this.setState({ img: target.img, imageType: 'pokemon' })
+                break;
             }
-            else {
+            else if (pos.row === this.props.playerPosition.row && pos.col === this.props.playerPosition.col) {
+                this.setState({ img: dresser, imageType: 'dresser' });
+                break;
+            } else {
+                console.log(`${JSON.stringify(target.pos)}`);
                 this.setState({ img: '' });
             }
+        }
+    }
+
+    componentDidMount() {
+        this.displayTarget();
+    }
+
+    componentDidUpdate(prevProps, prevState) {
+        console.log(`${prevProps.targetsPositions.length} ${this.props.targetsPositions.length}`)
+        if (prevProps.targetsPositions.length !== this.props.targetsPositions.length) {
+            this.displayTarget();
+        }
+        if (JSON.stringify(prevProps.playerPosition) !== JSON.stringify(this.props.playerPosition)) {
+            this.displayTarget();
         }
     }
 
@@ -76,7 +87,7 @@ class Cell extends React.Component {
     render() {
         return (
             <div className="cell" id={this.props.position} onClick={e => this.handleClick(e)} onMouseOver={e => this.handleMouseOver(e)}>
-                <img class="image" src={this.state.img} />
+                <img className={"image" + this.state.imageType} alt={this.state.img} src={this.state.img} />
             </div>
         )
     }
