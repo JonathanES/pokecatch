@@ -36,6 +36,14 @@
   overflow: hidden;
 }
 
+.path {
+  background-color: yellow;
+}
+
+.visited {
+  background-color: blue;
+}
+
 .selected {
   background-color: black;
 }

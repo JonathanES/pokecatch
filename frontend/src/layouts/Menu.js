@@ -4,10 +4,15 @@ import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
 import Dropdown from 'react-bootstrap/Dropdown';
 import Button from 'react-bootstrap/Button';
+import djikstra from '../algorithms/djikstra';
 
 const MAX_IDX_POKEMON = 151;
 const URL_POKEMON = 'https://pokedex-mti.twitchytv.live/images/';
 const mapStateToProps = state => ({
+    playerPosition: state.grid.playerPosition,
+    targetsPositions: state.grid.targetsPositions,
+    width: state.grid.width,
+    height: state.grid.height
 });
 
 
@@ -20,6 +25,7 @@ class Menu extends React.Component {
         this.handleTarget = this.handleTarget.bind(this);
         this.handleWall = this.handleWall.bind(this);
         this.handlePlayer = this.handlePlayer.bind(this);
+        this.handleDjikstra = this.handleDjikstra.bind(this);
     }
 
     handlePlayer(){
@@ -32,6 +38,11 @@ class Menu extends React.Component {
 
     handleWall(){
         this.props.dispatch({type: 'USER_WALL_ACTION'});
+    }
+
+    handleDjikstra(){
+        const {path, visitedNodes} = djikstra(this.props.playerPosition, this.props.targetsPositions[0].pos, this.props.height, this.props.width, this.props.dispatch)
+        this.props.dispatch({type: 'USER_DJIKSTRA_RESULT', path: path, visitedNodes: visitedNodes})
     }
 
     componentDidMount() {
@@ -51,6 +62,7 @@ class Menu extends React.Component {
                     <Button variant="light" onClick={() => this.handlePlayer()}>Player</Button>
                     <Button variant="light" onClick={() => this.handleTarget()}>Target</Button>
                     <Button variant="light" onClick={() => this.handleWall()}>Wall</Button>
+                    <Button variant="light" onClick={() => this.handleDjikstra()}>Djikstra</Button>
                         <Dropdown>
                             <Dropdown.Toggle variant="success" id="dropdown-basic">
                                 Dropdown Button

@@ -10,7 +10,9 @@ const mapStateToProps = state => ({
     wallAction: state.userAction.wallAction,
     grid: state.grid.grid,
     playerPosition: state.grid.playerPosition,
-    targetsPositions: state.grid.targetsPositions
+    targetsPositions: state.grid.targetsPositions,
+    path: state.grid.path,
+    visitedNode: state.grid.visitedNode
 });
 
 class Cell extends React.Component {
@@ -18,7 +20,8 @@ class Cell extends React.Component {
         super(props);
         this.state = {
             img: '',
-            imageType: ''
+            imageType: '',
+            divType: ''
         }
         this.handleMouseOver = this.handleMouseOver.bind(this);
         this.handleClick = this.handleClick.bind(this);
@@ -29,15 +32,19 @@ class Cell extends React.Component {
         let targetsPositions = this.props.targetsPositions;
         for (let target of targetsPositions) {
             if (target.pos.row === pos.row && pos.col === target.pos.col) {
-                console.log(`${target.img} ${JSON.stringify(target.pos)}`);
                 this.setState({ img: target.img, imageType: 'pokemon' })
                 break;
             }
             else if (pos.row === this.props.playerPosition.row && pos.col === this.props.playerPosition.col) {
                 this.setState({ img: dresser, imageType: 'dresser' });
                 break;
-            } else {
-                console.log(`${JSON.stringify(target.pos)}`);
+            }
+            else if (pos.row === this.props.visitedNode.row && pos.col === this.props.visitedNode.col) {
+                console.log('visited')
+                this.setState({ divType: ' visited' });
+                break;
+            }
+            else {
                 this.setState({ img: '' });
             }
         }
@@ -48,12 +55,25 @@ class Cell extends React.Component {
     }
 
     componentDidUpdate(prevProps, prevState) {
-        console.log(`${prevProps.targetsPositions.length} ${this.props.targetsPositions.length}`)
+        if (prevProps.path.length !== this.props.path.length){
+            const pos = this.props.position;
+            console.log(pos);
+            for (let cell of this.props.path){
+                if (pos.row === cell.row && pos.col === cell.col){
+                    this.setState({divType: ' path'});
+                    break;
+                }
+            }
+        }
         if (prevProps.targetsPositions.length !== this.props.targetsPositions.length) {
             this.displayTarget();
         }
         if (JSON.stringify(prevProps.playerPosition) !== JSON.stringify(this.props.playerPosition)) {
             this.displayTarget();
+        }
+        if (prevProps.visitedNode !== this.props.visitedNode) {
+            console.log(`${JSON.stringify(prevProps.visitedNode)} ${JSON.stringify(this.props.visitedNode)}`)
+           this.displayTarget();
         }
     }
 
@@ -86,7 +106,7 @@ class Cell extends React.Component {
     }
     render() {
         return (
-            <div className="cell" id={this.props.position} onClick={e => this.handleClick(e)} onMouseOver={e => this.handleMouseOver(e)}>
+            <div className={"cell" + this.state.divType} id={this.props.position} onClick={e => this.handleClick(e)} onMouseOver={e => this.handleMouseOver(e)}>
                 <img className={"image" + this.state.imageType} alt={this.state.img} src={this.state.img} />
             </div>
         )
